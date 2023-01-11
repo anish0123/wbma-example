@@ -1,8 +1,5 @@
 import {StatusBar} from 'expo-status-bar';
-import {
-  StyleSheet,
-  SafeAreaView,
-} from 'react-native';
+import {StyleSheet, SafeAreaView} from 'react-native';
 import List from './components/List';
 
 const App = () => {
