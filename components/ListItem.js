@@ -17,8 +17,10 @@ const ListItem = ({singleMedia, navigation}) => {
           source={{uri: uploadsUrl + item.thumbnails?.w160}}
         />
         <View style={styles.info}>
-          <Text style={{fontSize: 30}}>{item.title}</Text>
-          <Text>{item.description}</Text>
+          <Text style={{fontSize: 20, color: 'rgb(255,255,255)'}}>
+            {item.title}
+          </Text>
+          <Text style={{color: '#D3D3D3'}}>{item.description}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -34,19 +36,20 @@ const styles = StyleSheet.create({
   main: {
     flex: 1,
     flexDirection: 'row',
-    height: 350,
+    height: 150,
     width: 400,
     justifyContent: 'center',
-    backgroundColor: '#808080',
-    marginTop: 5,
+    backgroundColor: '#242834',
+    marginTop: 10,
   },
   image: {
     flex: 1,
     width: 100,
-    height: 270,
-    marginTop: 30,
+    height: 100,
+    marginTop: 25,
     marginRight: 10,
     marginLeft: 10,
+    borderBottomLeftRadius: 60,
   },
   info: {
     flex: 1,
