@@ -5,7 +5,7 @@ const App = () => {
   return (
     <>
       <Navigator />
-      <StatusBar style="auto" />
+      <StatusBar style="auto" backgroundColor="#8D918D" translucent={true} />
     </>
   );
 };
