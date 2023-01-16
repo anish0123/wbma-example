@@ -6,7 +6,7 @@ const App = () => {
   return (
     <MainProvider>
       <Navigator />
-      <StatusBar style="auto" backgroundColor="rgb(0,255,0)" />
+      <StatusBar style="auto" />
     </MainProvider>
   );
 };
