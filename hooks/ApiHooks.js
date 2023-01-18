@@ -44,11 +44,18 @@ const useAuthentication = () => {
     // user credentials format: {username: 'someUsername', password: 'somePassword'}
     const options = {
       // TODO: add method, headers and body for sending json data with POST
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userCredentials),
     };
     try {
       // TODO: use fetch to send request to login endpoint and return the result as json, handle errors with try/catch and response.ok
+      const loginResult = await doFetch(baseUrl + 'login', options);
+      return loginResult;
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error('postLogin: ', error.message);
     }
   };
   return {postLogin};
@@ -56,8 +63,19 @@ const useAuthentication = () => {
 
 // https://media.mw.metropolia.fi/wbma/docs/#api-User
 const useUser = () => {
-  const checkUser = async () => {
+  const getUserByToken = async (token) => {
     // https://media.mw.metropolia.fi/wbma/docs/#api-User-checkUserName
+    const options = {
+      method: 'GET',
+      headers: {'x-access-token': token},
+    };
+    try {
+      const userData = await doFetch(baseUrl + 'users/user', options);
+      return userData;
+    } catch (error) {
+      throw new Error('checkUser: ' + error.message);
+    }
   };
+  return {getUserByToken};
 };
 export {useMedia, useAuthentication, useUser};
