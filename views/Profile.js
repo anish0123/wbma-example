@@ -1,9 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {StyleSheet, SafeAreaView, Text, Button, Image} from 'react-native';
+import {Text, Button, Image} from 'react-native';
 import {MainContext} from '../contexts/MainContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useTag} from '../hooks/ApiHooks';
 import {uploadsUrl} from '../utils/variables';
+import {Card, Icon, ListItem} from '@rneui/themed';
 
 const Profile = () => {
   const {getFilesByTag} = useTag();
@@ -25,12 +26,17 @@ const Profile = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>Profile</Text>
-      <Image style={styles.image} source={{uri: uploadsUrl + avatar}} />
-      <Text>username: {user.username}</Text>
-      <Text>Email : {user.email}</Text>
-      <Text>Full name: {user.full_name}</Text>
+    <Card>
+      <Card.Title>{user.username}</Card.Title>
+      <Card.Image source={{uri: uploadsUrl + avatar}} />
+      <ListItem>
+        <Icon name="email"></Icon>
+        <ListItem.Title>Email : {user.email}</ListItem.Title>
+      </ListItem>
+      <ListItem>
+        <Icon name="badge"></Icon>
+        <ListItem.Title>Full name: {user.full_name}</ListItem.Title>
+      </ListItem>
       <Button
         title="Logout!"
         onPress={async () => {
@@ -44,22 +50,8 @@ const Profile = () => {
           }
         }}
       />
-    </SafeAreaView>
+    </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 40,
-  },
-  image: {
-    width: 200,
-    height: 300,
-  },
-});
 
 export default Profile;
