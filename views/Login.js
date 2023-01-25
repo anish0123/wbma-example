@@ -52,6 +52,7 @@ const Login = () => {
             : 'Already have account? Please Login'}
         </Text>
         <Button
+          type="outline"
           title={toggleForm ? 'Register' : 'Login'}
           onPress={() => {
             setToggleForm(false);
@@ -77,10 +78,9 @@ const Login = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    margin: 0,
     backgroundColor: '#fff',
     alignItems: 'center',
-    paddingTop: 30,
   },
 });
 
