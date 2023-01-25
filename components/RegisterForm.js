@@ -1,7 +1,8 @@
 import React from 'react';
-import {Text, View, Button, TextInput} from 'react-native';
+import {StyleSheet, Text} from 'react-native';
 import {Controller, useForm} from 'react-hook-form';
 import {useUser} from '../hooks/ApiHooks';
+import {Button, Card, Input} from '@rneui/themed';
 
 const RegisterForm = (props) => {
   const {postUser} = useUser();
@@ -29,13 +30,13 @@ const RegisterForm = (props) => {
     }
   };
   return (
-    <View>
-      <Text>Registeration Form</Text>
+    <Card containerStyle={styles.main}>
+      <Card.Title>Register</Card.Title>
       <Controller
         control={control}
         rules={{required: true, minLength: 3}}
         render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
+          <Input
             placeholder="Username"
             onBlur={onBlur}
             onChangeText={onChange}
@@ -52,7 +53,7 @@ const RegisterForm = (props) => {
         control={control}
         rules={{required: true, minLength: 5}}
         render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
+          <Input
             placeholder="password"
             onBlur={onBlur}
             onChangeText={onChange}
@@ -67,7 +68,7 @@ const RegisterForm = (props) => {
         control={control}
         rules={{required: true, minLength: 3}}
         render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
+          <Input
             placeholder="Email"
             onBlur={onBlur}
             onChangeText={onChange}
@@ -81,7 +82,7 @@ const RegisterForm = (props) => {
         control={control}
         rules={{minLength: 3}}
         render={({field: {onChange, onBlur, value}}) => (
-          <TextInput
+          <Input
             placeholder="Full Name"
             onBlur={onBlur}
             onChangeText={onChange}
@@ -94,9 +95,30 @@ const RegisterForm = (props) => {
         <Text>min length is 3 characters</Text>
       )}
 
-      <Button title="Register!" onPress={handleSubmit(register)} />
-    </View>
+      <Button
+        onPress={handleSubmit(register)}
+        radius={'sm'}
+        containerStyle={{
+          width: '100%',
+        }}
+      >
+        Register!
+      </Button>
+      <Card.Divider containerStyle={styles.divider} />
+    </Card>
   );
 };
+
+const styles = StyleSheet.create({
+  main: {
+    width: '100%',
+    margin: 0,
+    padding: 0,
+  },
+  divider: {
+    margin: 0,
+    padding: 0,
+  },
+});
 
 export default RegisterForm;
