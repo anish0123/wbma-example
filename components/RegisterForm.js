@@ -5,7 +5,7 @@ import {useUser} from '../hooks/ApiHooks';
 import {Button, Card, Input} from '@rneui/themed';
 
 const RegisterForm = (props) => {
-  const {postUser} = useUser();
+  const {postUser, checkUsername} = useUser();
   const {
     control,
     handleSubmit,
@@ -17,6 +17,7 @@ const RegisterForm = (props) => {
       email: '',
       full_name: '',
     },
+    mode: 'onBlur',
   });
 
   const register = async (registerData) => {
@@ -29,18 +30,26 @@ const RegisterForm = (props) => {
       // TODO: notify user about failed login attempt
     }
   };
+
+  const checkUser = async (username) => {
+    const userAvailable = await checkUsername(username);
+    console.log('checkUser', userAvailable);
+    return userAvailable || 'Username is already taken';
+  };
+
   return (
     <Card containerStyle={styles.main}>
       <Card.Title>Register</Card.Title>
       <Controller
         control={control}
-        rules={{required: true, minLength: 3}}
+        rules={{required: true, minLength: 3, validate: checkUser}}
         render={({field: {onChange, onBlur, value}}) => (
           <Input
             placeholder="Username"
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
+            autoCapitalize="none"
           />
         )}
         name="username"
@@ -73,6 +82,7 @@ const RegisterForm = (props) => {
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
+            autoCapitalize="none"
           />
         )}
         name="email"
