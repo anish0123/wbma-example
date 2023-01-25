@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   button: {
     position: 'absolute',
-    marginLeft: 300,
+    marginLeft: 330,
     marginTop: 15,
   },
 });

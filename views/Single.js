@@ -1,32 +1,36 @@
 import React from 'react';
-import {StyleSheet, SafeAreaView, Text, Image} from 'react-native';
+import {StyleSheet, Image} from 'react-native';
 import PropTypes from 'prop-types';
 import {uploadsUrl} from '../utils/variables';
+import {Card, ListItem, Icon} from '@rneui/themed';
 
 const Single = ({route}) => {
   console.log(route.params);
   const {title, description, filename, time_added: t} = route.params;
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>{title}</Text>
+    <Card>
       <Image style={styles.image} source={{uri: uploadsUrl + filename}} />
-      <Text>{description}</Text>
-      <Text>{t}</Text>
-    </SafeAreaView>
+      <ListItem>
+        <ListItem.Title>{title}</ListItem.Title>
+      </ListItem>
+      <ListItem containerStyle={styles.description}>
+        <Icon name="image"></Icon>
+        <ListItem.Subtitle>{description}</ListItem.Subtitle>
+      </ListItem>
+      <ListItem>
+        <ListItem.Subtitle>Added At: {t}</ListItem.Subtitle>
+      </ListItem>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 40,
-  },
   image: {
-    width: 200,
-    height: 300,
+    width: '100%',
+    height: 350,
+  },
+  description: {
+    width: 350,
   },
 });
 
