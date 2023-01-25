@@ -36,7 +36,7 @@ const LoginForm = (props) => {
   };
   return (
     <Card containerStyle={styles.main}>
-      <Card.Title>Login </Card.Title>
+      <Card.Title containerStyle={styles.title}>Login</Card.Title>
       <Controller
         control={control}
         rules={{required: true, minLength: 3}}
@@ -46,6 +46,7 @@ const LoginForm = (props) => {
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
+            autoCapitalize="none"
           />
         )}
         name="username"
@@ -87,6 +88,10 @@ const styles = StyleSheet.create({
     width: '100%',
     margin: 0,
     padding: 0,
+  },
+  title: {
+    fontSize: 30,
+    backgroundColor: '#FF0000',
   },
 });
 
