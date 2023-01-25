@@ -1,8 +1,8 @@
 import React from 'react';
-import {StyleSheet, Text} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {Controller, useForm} from 'react-hook-form';
 import {useUser} from '../hooks/ApiHooks';
-import {Button, Card, Input} from '@rneui/themed';
+import {Button, Card, Input, Text} from '@rneui/themed';
 
 const RegisterForm = (props) => {
   const {postUser, checkUsername} = useUser();
@@ -32,9 +32,13 @@ const RegisterForm = (props) => {
   };
 
   const checkUser = async (username) => {
-    const userAvailable = await checkUsername(username);
-    console.log('checkUser', userAvailable);
-    return userAvailable || 'Username is already taken';
+    try {
+      const userAvailable = await checkUsername(username);
+      console.log('checkUser', userAvailable);
+      return userAvailable || 'Username is already taken';
+    } catch (error) {
+      console.error('checkUser', error.message);
+    }
   };
 
   return (
@@ -42,7 +46,14 @@ const RegisterForm = (props) => {
       <Card.Title>Register</Card.Title>
       <Controller
         control={control}
-        rules={{required: true, minLength: 3, validate: checkUser}}
+        rules={{
+          required: {value: true, message: 'This is required'},
+          minLength: {
+            value: 3,
+            message: 'Username Min length is 3 characters.',
+          },
+          validate: checkUser,
+        }}
         render={({field: {onChange, onBlur, value}}) => (
           <Input
             placeholder="Username"
@@ -50,17 +61,24 @@ const RegisterForm = (props) => {
             onChangeText={onChange}
             value={value}
             autoCapitalize="none"
+            errorMessage={errors.username && errors.username.message}
           />
         )}
         name="username"
       />
-      {errors.username?.type === 'required' && <Text>is required</Text>}
-      {errors.username?.type === 'minLength' && (
-        <Text>min length is 3 characters</Text>
-      )}
       <Controller
         control={control}
-        rules={{required: true, minLength: 5}}
+        rules={{
+          required: {
+            value: true,
+            message:
+              'Password is required. min 5 characters, needs one number, one uppercase letter',
+          },
+          pattern: {
+            value: /(?=.*\p{Lu})(?=.*[0-9]).{5,}/u,
+            message: 'min 5 characters, needs one number, one uppercase letter',
+          },
+        }}
         render={({field: {onChange, onBlur, value}}) => (
           <Input
             placeholder="password"
@@ -68,11 +86,11 @@ const RegisterForm = (props) => {
             onChangeText={onChange}
             value={value}
             secureTextEntry={true}
+            errorMessage={errors.password && errors.password.message}
           />
         )}
         name="password"
       />
-      {errors.password && <Text>Password (min. 5 chars) is required</Text>}
       <Controller
         control={control}
         rules={{required: true, minLength: 3}}
