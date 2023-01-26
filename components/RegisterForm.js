@@ -2,18 +2,20 @@ import React from 'react';
 import {StyleSheet} from 'react-native';
 import {Controller, useForm} from 'react-hook-form';
 import {useUser} from '../hooks/ApiHooks';
-import {Button, Card, Input, Text} from '@rneui/themed';
+import {Button, Card, Input} from '@rneui/themed';
 
 const RegisterForm = (props) => {
   const {postUser, checkUsername} = useUser();
   const {
     control,
+    getValues,
     handleSubmit,
     formState: {errors},
   } = useForm({
     defaultValues: {
       username: '',
       password: '',
+      confirmPassword: '',
       email: '',
       full_name: '',
     },
@@ -21,6 +23,7 @@ const RegisterForm = (props) => {
   });
 
   const register = async (registerData) => {
+    delete registerData.confirmPassword;
     console.log('Registering: ', registerData);
     try {
       const registerResult = await postUser(registerData);
@@ -47,7 +50,7 @@ const RegisterForm = (props) => {
       <Controller
         control={control}
         rules={{
-          required: {value: true, message: 'This is required'},
+          required: {value: true, message: 'username is required'},
           minLength: {
             value: 3,
             message: 'Username Min length is 3 characters.',
@@ -81,7 +84,7 @@ const RegisterForm = (props) => {
         }}
         render={({field: {onChange, onBlur, value}}) => (
           <Input
-            placeholder="password"
+            placeholder="Password"
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
@@ -93,7 +96,38 @@ const RegisterForm = (props) => {
       />
       <Controller
         control={control}
-        rules={{required: true, minLength: 3}}
+        rules={{
+          validate: (value) => {
+            if (value === getValues('password')) {
+              return true;
+            } else {
+              return 'passwords do not match!';
+            }
+          },
+        }}
+        render={({field: {onChange, onBlur, value}}) => (
+          <Input
+            placeholder="Confirm Password"
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            secureTextEntry={true}
+            errorMessage={
+              errors.confirmPassword && errors.confirmPassword.message
+            }
+          />
+        )}
+        name="confirmPassword"
+      />
+      <Controller
+        control={control}
+        rules={{
+          required: {value: true, message: 'Email is required'},
+          pattern: {
+            value: /^[a-z0-9.-_]{1,64}@[a-z0-9.-_]{3,64}/i,
+            message: 'Must be a valid email',
+          },
+        }}
         render={({field: {onChange, onBlur, value}}) => (
           <Input
             placeholder="Email"
@@ -101,28 +135,30 @@ const RegisterForm = (props) => {
             onChangeText={onChange}
             value={value}
             autoCapitalize="none"
+            errorMessage={errors.email && errors.email.message}
           />
         )}
         name="email"
       />
-      {errors.email?.type === 'required' && <Text>is required</Text>}
       <Controller
         control={control}
-        rules={{minLength: 3}}
+        rules={{
+          minLength: {
+            value: 3,
+            message: 'Name Min length is 3 characters.',
+          },
+        }}
         render={({field: {onChange, onBlur, value}}) => (
           <Input
             placeholder="Full Name"
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
+            errorMessage={errors.full_name && errors.full_name.message}
           />
         )}
         name="full_name"
       />
-      {errors.username?.type === 'minLength' && (
-        <Text>min length is 3 characters</Text>
-      )}
-
       <Button
         onPress={handleSubmit(register)}
         radius={'sm'}
