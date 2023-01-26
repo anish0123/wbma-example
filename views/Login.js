@@ -3,6 +3,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
@@ -11,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useUser} from '../hooks/ApiHooks';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
-import {Button, Text} from '@rneui/themed';
+import {Button, Card, Text} from '@rneui/themed';
 
 const Login = () => {
   const {setIsLoggedIn, setUser} = useContext(MainContext);
@@ -36,30 +37,30 @@ const Login = () => {
     checkToken();
   }, []);
   return (
-    <TouchableOpacity
-      onPress={() => Keyboard.dismiss()}
-      style={{flex: 1}}
-      activeOpacity={1}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        {toggleForm ? <LoginForm /> : <RegisterForm />}
-        <Text>
-          {toggleForm
-            ? ' No account yet'
-            : 'Already have account? Please Login'}
-        </Text>
-        <Button
-          type="outline"
-          title={toggleForm ? 'Register' : 'Login'}
-          onPress={() => {
-            setToggleForm(false);
-          }}
-        />
-      </KeyboardAvoidingView>
-    </TouchableOpacity>
+    <ScrollView>
+      <TouchableOpacity onPress={() => Keyboard.dismiss()} activeOpacity={1}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}
+        >
+          {toggleForm ? <LoginForm /> : <RegisterForm />}
+          <Card>
+            <Text>
+              {toggleForm
+                ? ' No account yet'
+                : 'Already have account? Please Login'}
+            </Text>
+            <Button
+              type="outline"
+              title={toggleForm ? 'Register' : 'Login'}
+              onPress={() => {
+                setToggleForm(!toggleForm);
+              }}
+            />
+          </Card>
+        </KeyboardAvoidingView>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
