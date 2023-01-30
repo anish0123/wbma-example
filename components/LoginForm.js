@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {StyleSheet, Text} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {MainContext} from '../contexts/MainContext';
 import {useAuthentication} from '../hooks/ApiHooks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
