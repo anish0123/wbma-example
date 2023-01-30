@@ -94,6 +94,25 @@ const useUser = () => {
     }
   };
 
+  const putUser = async (userData, token) => {
+    const options = {
+      // TODO: add method, headers and body for sending json data with POST
+      method: 'put',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token,
+      },
+      body: JSON.stringify(userData),
+    };
+    try {
+      // TODO: use fetch to send request to login endpoint and return the result as json, handle errors with try/catch and response.ok
+      const editResult = await doFetch(baseUrl + 'users', options);
+      return editResult;
+    } catch (error) {
+      throw new Error('postUser: ', error.message);
+    }
+  };
+
   const checkUsername = async (username) => {
     try {
       const result = await doFetch(baseUrl + 'users/username/' + username);
@@ -103,7 +122,7 @@ const useUser = () => {
     }
   };
 
-  return {getUserByToken, postUser, checkUsername};
+  return {getUserByToken, postUser, checkUsername, putUser};
 };
 
 const useTag = () => {
