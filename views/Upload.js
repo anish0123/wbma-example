@@ -1,12 +1,24 @@
 import {Button, Card, Input} from '@rneui/themed';
 import PropTypes from 'prop-types';
 import {Controller, useForm} from 'react-hook-form';
-import {Keyboard, ScrollView, TouchableOpacity} from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import React from 'react';
+import {useContext, useState} from 'react';
+import {useMedia} from '../hooks/ApiHooks';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {MainContext} from '../contexts/MainContext';
 
 const Upload = ({navigation}) => {
-  const [image, setImage] = React.useState({});
+  const {postMedia} = useMedia();
+  const [mediaFile, setMediaFile] = useState({});
+  const [loading, setLoading] = useState(false);
+  const {update, setUpdate} = useContext(MainContext);
   const {
     control,
     handleSubmit,
@@ -18,12 +30,46 @@ const Upload = ({navigation}) => {
     },
   });
 
-  const upload = async (data) => {
+  const uploadFile = async (data) => {
     // TODO: create form data and post it
-    console.log('Uploading a file', data);
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('description', data.description);
+    const filename = mediaFile.uri.split('/').pop();
+    let fileExt = filename.split('.').pop();
+    if (fileExt === 'jpg') fileExt = 'jpeg';
+    const mimeType = mediaFile.type + '/' + fileExt;
+    formData.append('file', {
+      uri: mediaFile.uri,
+      name: filename,
+      type: mimeType,
+    });
+    try {
+      const uploadResult = await postMedia(
+        formData,
+        await AsyncStorage.getItem('userToken')
+      );
+      console.log('upload Result', uploadResult);
+      Alert.alert('Upload Ok', 'File id: ' + uploadResult.file_id, [
+        {
+          text: 'OK',
+          onPress: () => {
+            console.log('OK Pressed');
+            // update 'update' state in context
+            setUpdate(!update);
+            // TODO: navigated to home;
+          },
+        },
+      ]);
+    } catch (error) {
+      console.error('file upload failed', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const pickImage = async () => {
+  const pickFile = async () => {
     // No permissions request is necessary for launching the image library
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -35,7 +81,7 @@ const Upload = ({navigation}) => {
     console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0]);
+      setMediaFile(result.assets[0]);
     }
   };
 
@@ -44,7 +90,7 @@ const Upload = ({navigation}) => {
       <TouchableOpacity onPress={() => Keyboard.dismiss()} activeOpacity={1}>
         <Card>
           <Card.Image
-            source={{uri: image.uri || 'https://placekitten.com/g/200/300'}}
+            source={{uri: mediaFile.uri || 'https://placekitten.com/g/200/300'}}
           />
           <Controller
             control={control}
@@ -79,16 +125,19 @@ const Upload = ({navigation}) => {
             )}
             name="description"
           />
-          <Button title="Pick an image" onPress={pickImage} />
+
+          <Button title="Pick an image" onPress={pickFile} />
           <Button
-            onPress={handleSubmit(upload)}
+            onPress={handleSubmit(uploadFile)}
             radius={'sm'}
             containerStyle={{
               width: '100%',
             }}
+            disabled={!mediaFile.uri}
           >
             Upload
           </Button>
+          {loading && <ActivityIndicator size="large" />}
         </Card>
       </TouchableOpacity>
     </ScrollView>
