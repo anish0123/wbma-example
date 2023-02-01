@@ -9,13 +9,16 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import {useContext, useState} from 'react';
-import {useMedia} from '../hooks/ApiHooks';
+import {useCallback, useContext, useState} from 'react';
+import {useMedia, useTag} from '../hooks/ApiHooks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {MainContext} from '../contexts/MainContext';
+import {useFocusEffect} from '@react-navigation/native';
+import {appId} from '../utils/variables';
 
 const Upload = ({navigation}) => {
   const {postMedia} = useMedia();
+  const {postTag} = useTag();
   const [mediaFile, setMediaFile] = useState({});
   const [loading, setLoading] = useState(false);
   const {update, setUpdate} = useContext(MainContext);
@@ -23,11 +26,14 @@ const Upload = ({navigation}) => {
     control,
     handleSubmit,
     formState: {errors},
+    trigger,
+    reset,
   } = useForm({
     defaultValues: {
       title: '',
       description: '',
     },
+    mode: 'onChange',
   });
 
   const uploadFile = async (data) => {
@@ -46,11 +52,16 @@ const Upload = ({navigation}) => {
       type: mimeType,
     });
     try {
-      const uploadResult = await postMedia(
-        formData,
-        await AsyncStorage.getItem('userToken')
-      );
+      const token = await AsyncStorage.getItem('userToken');
+      const uploadResult = await postMedia(formData, token);
       console.log('upload Result', uploadResult);
+
+      const appTag = {
+        file_id: uploadResult.file_id,
+        tag: appId,
+      };
+      const tagResult = await postTag(appTag, token);
+      console.log('tagResult', tagResult);
       Alert.alert('Upload Ok', 'File id: ' + uploadResult.file_id, [
         {
           text: 'OK',
@@ -58,7 +69,10 @@ const Upload = ({navigation}) => {
             console.log('OK Pressed');
             // update 'update' state in context
             setUpdate(!update);
+            // reset form
+            resetValues();
             // TODO: navigated to home;
+            navigation.navigate('Home');
           },
         },
       ]);
@@ -70,34 +84,65 @@ const Upload = ({navigation}) => {
   };
 
   const pickFile = async () => {
-    // No permissions request is necessary for launching the image library
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.5,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.5,
+      });
+      console.log(result);
 
-    console.log(result);
-
-    if (!result.canceled) {
-      setMediaFile(result.assets[0]);
+      if (!result.canceled) {
+        setMediaFile(result.assets[0]);
+        // Validate form
+        trigger();
+      }
+    } catch (error) {
+      console.log('pickFile', error);
     }
+    // No permissions request is necessary for launching the image library
   };
+
+  const resetValues = () => {
+    setMediaFile({});
+    reset();
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        console.log('leaving');
+        resetValues();
+      };
+    }, [])
+  );
 
   return (
     <ScrollView>
       <TouchableOpacity onPress={() => Keyboard.dismiss()} activeOpacity={1}>
         <Card>
-          <Card.Image
-            source={{uri: mediaFile.uri || 'https://placekitten.com/g/200/300'}}
-          />
+          {mediaFile.type === 'video' || undefined ? (
+            <Card.Title>Video</Card.Title>
+          ) : (
+            <Card.Image
+              source={{
+                uri: mediaFile.uri || 'https://placekitten.com/g/200/300',
+              }}
+              onPress={pickFile}
+            />
+          )}
+
           <Controller
             control={control}
             rules={{
               required: {
                 value: true,
                 message: 'Title is required',
+              },
+              minLength: {
+                value: 3,
+                message: 'Title Min length is 3 characters.',
               },
             }}
             render={({field: {onChange, onBlur, value}}) => (
@@ -114,6 +159,12 @@ const Upload = ({navigation}) => {
           />
           <Controller
             control={control}
+            rules={{
+              minLength: {
+                value: 5,
+                message: 'Description Min length is 5 characters.',
+              },
+            }}
             render={({field: {onChange, onBlur, value}}) => (
               <Input
                 placeholder="Description"
@@ -121,6 +172,7 @@ const Upload = ({navigation}) => {
                 onChangeText={onChange}
                 value={value}
                 autoCapitalize="none"
+                errorMessage={errors.description && errors.description.message}
               />
             )}
             name="description"
@@ -133,9 +185,12 @@ const Upload = ({navigation}) => {
             containerStyle={{
               width: '100%',
             }}
-            disabled={!mediaFile.uri}
+            disabled={!mediaFile.uri || errors.title || errors.description}
           >
             Upload
+          </Button>
+          <Button type="outline" onPress={resetValues}>
+            Reset
           </Button>
           {loading && <ActivityIndicator size="large" />}
         </Card>
