@@ -18,7 +18,9 @@ const Single = ({route}) => {
         <ListItem.Subtitle>{description}</ListItem.Subtitle>
       </ListItem>
       <ListItem>
-        <ListItem.Subtitle>Added At: {t}</ListItem.Subtitle>
+        <ListItem.Subtitle>
+          Added At: {new Date(t).toLocaleString('fi-FI')}
+        </ListItem.Subtitle>
       </ListItem>
     </Card>
   );
