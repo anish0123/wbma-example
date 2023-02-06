@@ -180,6 +180,7 @@ const Upload = ({navigation}) => {
 
           <Button title="Pick an image" onPress={pickFile} />
           <Button
+            loading={loading}
             onPress={handleSubmit(uploadFile)}
             radius={'sm'}
             containerStyle={{
