@@ -1,5 +1,12 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {ScrollView, StyleSheet} from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Keyboard,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
 import {MainContext} from '../contexts/MainContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useTag} from '../hooks/ApiHooks';
@@ -73,158 +80,165 @@ const Profile = () => {
 
   return (
     <ScrollView>
-      <Card>
-        <Card.Title>{user.username}</Card.Title>
-        <Card.Image source={{uri: uploadsUrl + avatar}} />
-        <ListItem>
-          <Icon name="email"></Icon>
-          <ListItem.Title>Email : {user.email}</ListItem.Title>
-        </ListItem>
-        <ListItem>
-          <Icon name="badge"></Icon>
-          <ListItem.Title>Full name: {user.full_name}</ListItem.Title>
-        </ListItem>
-        <Button
-          title="Logout!"
-          onPress={async () => {
-            console.log('Loggin Out!');
-            setUser({});
-            setIsLoggedIn(false);
-            try {
-              await AsyncStorage.clear();
-            } catch (error) {
-              console.warn('error in clearing asyncStorage!', error);
-            }
-          }}
-        />
-      </Card>
-      <Card>
-        <Card.Title>Edit Details</Card.Title>
-        <Controller
-          control={control}
-          rules={{
-            required: {value: true, message: 'username is required'},
-            minLength: {
-              value: 3,
-              message: 'Username Min length is 3 characters.',
-            },
-            validate: checkUser,
-          }}
-          render={({field: {onChange, onBlur, value}}) => (
-            <Input
-              placeholder="Username"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              defaultValue={user.username}
-              value={value}
-              autoCapitalize="none"
-              errorMessage={errors.username && errors.username.message}
-            />
-          )}
-          name="username"
-        />
-        <Controller
-          control={control}
-          rules={{
-            required: {
-              value: true,
-              message:
-                'Password is required. min 5 characters, needs one number, one uppercase letter',
-            },
-            pattern: {
-              value: /(?=.*\p{Lu})(?=.*[0-9]).{5,}/u,
-              message:
-                'min 5 characters, needs one number, one uppercase letter',
-            },
-          }}
-          render={({field: {onChange, onBlur, value}}) => (
-            <Input
-              placeholder="Password"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry={true}
-              errorMessage={errors.password && errors.password.message}
-            />
-          )}
-          name="password"
-        />
-        <Controller
-          control={control}
-          rules={{
-            validate: (value) => {
-              if (value === getValues('password')) {
-                return true;
-              } else {
-                return 'passwords do not match!';
-              }
-            },
-          }}
-          render={({field: {onChange, onBlur, value}}) => (
-            <Input
-              placeholder="Confirm Password"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry={true}
-              errorMessage={
-                errors.confirmPassword && errors.confirmPassword.message
-              }
-            />
-          )}
-          name="confirmPassword"
-        />
-        <Controller
-          control={control}
-          rules={{
-            required: {value: true, message: 'Email is required'},
-            pattern: {
-              value: /^[a-z0-9.-_]{1,64}@[a-z0-9.-_]{3,64}/i,
-              message: 'Must be a valid email',
-            },
-          }}
-          render={({field: {onChange, onBlur, value}}) => (
-            <Input
-              placeholder="Email"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              autoCapitalize="none"
-              errorMessage={errors.email && errors.email.message}
-            />
-          )}
-          name="email"
-        />
-        <Controller
-          control={control}
-          rules={{
-            minLength: {
-              value: 3,
-              message: 'Name Min length is 3 characters.',
-            },
-          }}
-          render={({field: {onChange, onBlur, value}}) => (
-            <Input
-              placeholder="Full Name"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              errorMessage={errors.full_name && errors.full_name.message}
-            />
-          )}
-          name="full_name"
-        />
-        <Button
-          onPress={handleSubmit(edit)}
-          radius={'sm'}
-          containerStyle={{
-            width: '100%',
-          }}
+      <TouchableOpacity onPress={() => Keyboard.dismiss()} activeOpacity={1}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}
         >
-          Edit Details!
-        </Button>
-        <Card.Divider containerStyle={styles.divider} />
-      </Card>
+          <Card>
+            <Card.Title>{user.username}</Card.Title>
+            <Card.Image source={{uri: uploadsUrl + avatar}} />
+            <ListItem>
+              <Icon name="email"></Icon>
+              <ListItem.Title>Email : {user.email}</ListItem.Title>
+            </ListItem>
+            <ListItem>
+              <Icon name="badge"></Icon>
+              <ListItem.Title>Full name: {user.full_name}</ListItem.Title>
+            </ListItem>
+            <Button
+              title="Logout!"
+              onPress={async () => {
+                console.log('Loggin Out!');
+                setUser({});
+                setIsLoggedIn(false);
+                try {
+                  await AsyncStorage.clear();
+                } catch (error) {
+                  console.warn('error in clearing asyncStorage!', error);
+                }
+              }}
+            />
+          </Card>
+          <Card>
+            <Card.Title>Edit Details</Card.Title>
+            <Controller
+              control={control}
+              rules={{
+                required: {value: true, message: 'username is required'},
+                minLength: {
+                  value: 3,
+                  message: 'Username Min length is 3 characters.',
+                },
+                validate: checkUser,
+              }}
+              render={({field: {onChange, onBlur, value}}) => (
+                <Input
+                  placeholder="Username"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  defaultValue={user.username}
+                  value={value}
+                  autoCapitalize="none"
+                  errorMessage={errors.username && errors.username.message}
+                />
+              )}
+              name="username"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: {
+                  value: true,
+                  message:
+                    'Password is required. min 5 characters, needs one number, one uppercase letter',
+                },
+                pattern: {
+                  value: /(?=.*\p{Lu})(?=.*[0-9]).{5,}/u,
+                  message:
+                    'min 5 characters, needs one number, one uppercase letter',
+                },
+              }}
+              render={({field: {onChange, onBlur, value}}) => (
+                <Input
+                  placeholder="Password"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry={true}
+                  errorMessage={errors.password && errors.password.message}
+                />
+              )}
+              name="password"
+            />
+            <Controller
+              control={control}
+              rules={{
+                validate: (value) => {
+                  if (value === getValues('password')) {
+                    return true;
+                  } else {
+                    return 'passwords do not match!';
+                  }
+                },
+              }}
+              render={({field: {onChange, onBlur, value}}) => (
+                <Input
+                  placeholder="Confirm Password"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  secureTextEntry={true}
+                  errorMessage={
+                    errors.confirmPassword && errors.confirmPassword.message
+                  }
+                />
+              )}
+              name="confirmPassword"
+            />
+            <Controller
+              control={control}
+              rules={{
+                required: {value: true, message: 'Email is required'},
+                pattern: {
+                  value: /^[a-z0-9.-_]{1,64}@[a-z0-9.-_]{3,64}/i,
+                  message: 'Must be a valid email',
+                },
+              }}
+              render={({field: {onChange, onBlur, value}}) => (
+                <Input
+                  placeholder="Email"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  autoCapitalize="none"
+                  errorMessage={errors.email && errors.email.message}
+                />
+              )}
+              name="email"
+            />
+            <Controller
+              control={control}
+              rules={{
+                minLength: {
+                  value: 3,
+                  message: 'Name Min length is 3 characters.',
+                },
+              }}
+              render={({field: {onChange, onBlur, value}}) => (
+                <Input
+                  placeholder="Full Name"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  errorMessage={errors.full_name && errors.full_name.message}
+                />
+              )}
+              name="full_name"
+            />
+            <Button
+              onPress={handleSubmit(edit)}
+              radius={'sm'}
+              containerStyle={{
+                width: '100%',
+              }}
+            >
+              Edit Details!
+            </Button>
+            <Card.Divider containerStyle={styles.divider} />
+          </Card>
+        </KeyboardAvoidingView>
+      </TouchableOpacity>
     </ScrollView>
   );
 };

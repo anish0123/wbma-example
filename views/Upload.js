@@ -9,12 +9,13 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import {useCallback, useContext, useState} from 'react';
+import {useCallback, useContext, useRef, useState} from 'react';
 import {useMedia, useTag} from '../hooks/ApiHooks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {MainContext} from '../contexts/MainContext';
 import {useFocusEffect} from '@react-navigation/native';
 import {appId} from '../utils/variables';
+import {Video} from 'expo-av';
 
 const Upload = ({navigation}) => {
   const {postMedia} = useMedia();
@@ -22,6 +23,7 @@ const Upload = ({navigation}) => {
   const [mediaFile, setMediaFile] = useState({});
   const [loading, setLoading] = useState(false);
   const {update, setUpdate} = useContext(MainContext);
+  const video = useRef(null);
   const {
     control,
     handleSubmit,
@@ -122,8 +124,17 @@ const Upload = ({navigation}) => {
     <ScrollView>
       <TouchableOpacity onPress={() => Keyboard.dismiss()} activeOpacity={1}>
         <Card>
-          {mediaFile.type === 'video' || undefined ? (
-            <Card.Title>Video</Card.Title>
+          {mediaFile.type === 'video' ? (
+            <Video
+              ref={video}
+              source={{uri: mediaFile.uri}}
+              style={{width: '100%', height: 500}}
+              resizeMode="contain"
+              useNativeControls
+              onError={(error) => {
+                console.log(error);
+              }}
+            />
           ) : (
             <Card.Image
               source={{
@@ -178,7 +189,7 @@ const Upload = ({navigation}) => {
             name="description"
           />
 
-          <Button title="Pick an image" onPress={pickFile} />
+          <Button title="Pick a file" onPress={pickFile} />
           <Button
             loading={loading}
             onPress={handleSubmit(uploadFile)}
