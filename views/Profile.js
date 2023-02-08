@@ -14,8 +14,9 @@ import {uploadsUrl} from '../utils/variables';
 import {Card, Icon, ListItem, Input, Button} from '@rneui/themed';
 import {Controller, useForm} from 'react-hook-form';
 import {useUser} from '../hooks/ApiHooks';
+import PropTypes from 'prop-types';
 
-const Profile = () => {
+const Profile = ({navigation}) => {
   const {getFilesByTag} = useTag();
   const {setIsLoggedIn, user, setUser} = useContext(MainContext);
   const [avatar, setAvatar] = useState('');
@@ -107,6 +108,12 @@ const Profile = () => {
                 } catch (error) {
                   console.warn('error in clearing asyncStorage!', error);
                 }
+              }}
+            />
+            <Button
+              title="My Files"
+              onPress={() => {
+                navigation.navigate('MyFiles');
               }}
             />
           </Card>
@@ -254,5 +261,9 @@ const styles = StyleSheet.create({
     padding: 0,
   },
 });
+
+Profile.propTypes = {
+  navigation: PropTypes.object,
+};
 
 export default Profile;
