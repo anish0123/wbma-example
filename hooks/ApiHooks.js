@@ -14,16 +14,19 @@ const doFetch = async (url, options) => {
   return json;
 };
 
-const useMedia = () => {
+const useMedia = (myFilesOnly) => {
   const [mediaArray, setMediaArray] = useState([]);
-  const {update} = useContext(MainContext);
+  const {update, user} = useContext(MainContext);
 
   const loadMedia = async () => {
     try {
-      // const response = await fetch(baseUrl + 'media');
-      // const json = await response.json();
-
-      const json = await useTag().getFilesByTag(appId);
+      let json = await useTag().getFilesByTag(appId);
+      // Keep user files if myFiles
+      console.log('test myfiles', myFilesOnly);
+      console.log(user.user_id);
+      if (myFilesOnly) {
+        json = json.filter((file) => file.user_id === user.user_id);
+      }
       json.reverse();
       const media = await Promise.all(
         json.map(async (file) => {
@@ -58,11 +61,41 @@ const useMedia = () => {
       const uploadResult = await doFetch(baseUrl + 'media', options);
       return uploadResult;
     } catch (error) {
-      throw new Error('postUpload: ', error.message);
+      throw new Error('postMedia: ', error.message);
     }
   };
 
-  return {mediaArray, postMedia};
+  const deleteMedia = async (id, token) => {
+    try {
+      return await doFetch(baseUrl + 'media/' + id, {
+        headers: {'x-access-token': token},
+        method: 'delete',
+      });
+    } catch (error) {
+      throw new Error('deleteMedia' + error.message);
+    }
+  };
+
+  const putMedia = async (id, data, token) => {
+    const options = {
+      method: 'put',
+      headers: {
+        'x-access-token': token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    };
+    try {
+      // TODO: use fetch to send request to media endpoint and return the result as json, handle errors with try/catch and response.ok
+      const uploadResult = await doFetch(baseUrl + 'media/' + id, options);
+      return uploadResult;
+    } catch (error) {
+      console.log('putMedia:', error.message);
+      throw new Error('putMedia:', error.message);
+    }
+  };
+
+  return {mediaArray, postMedia, deleteMedia, putMedia};
 };
 
 const useAuthentication = () => {

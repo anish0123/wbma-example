@@ -1,11 +1,34 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import PropTypes from 'prop-types';
-import {StyleSheet, View, Image} from 'react-native';
+import {StyleSheet, View, Alert, Image} from 'react-native';
 import {uploadsUrl} from '../utils/variables';
 import {Card, ListItem as RNEListItem, Button} from '@rneui/themed';
+import {ButtonGroup} from '@rneui/base';
+import {MainContext} from '../contexts/MainContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useMedia} from '../hooks/ApiHooks';
 
 const ListItem = ({singleMedia, navigation}) => {
+  const {user, setUpdate, update} = useContext(MainContext);
+  const {deleteMedia} = useMedia();
   const item = singleMedia;
+  const doDelete = () => {
+    try {
+      Alert.alert('Delete', 'this file permanently', [
+        {text: 'cancel'},
+        {
+          text: 'OK',
+          onPress: async () => {
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await deleteMedia(item.file_id, token);
+            response && setUpdate(!update);
+          },
+        },
+      ]);
+    } catch (error) {
+      console.log('doDelete', error);
+    }
+  };
   return (
     <View styles={styles.details}>
       <Card containerStyle={styles.main}>
@@ -25,8 +48,24 @@ const ListItem = ({singleMedia, navigation}) => {
                 {item.description}
               </RNEListItem.Subtitle>
             </RNEListItem>
+            {item.user_id === user.user_id && (
+              <ButtonGroup
+                buttons={['Modify', 'Delete']}
+                rounded
+                containerStyle={styles.buttonContainter}
+                buttonStyle={styles.button}
+                onPress={(index) => {
+                  if (index === 0) {
+                    navigation.navigate('Modify', {file: item});
+                  } else {
+                    doDelete();
+                  }
+                }}
+              />
+            )}
           </View>
-          <View style={styles.button}>
+
+          <View style={styles.viewButton}>
             <Button
               title="View"
               onPress={() => {
@@ -70,7 +109,11 @@ const styles = StyleSheet.create({
   text: {
     marginLeft: 20,
   },
-  button: {
+  buttonContainter: {
+    width: 150,
+    height: 40,
+  },
+  viewButton: {
     position: 'absolute',
     marginLeft: 300,
     marginTop: 15,

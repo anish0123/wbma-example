@@ -6,6 +6,7 @@ import {Card, ListItem, Icon, Text} from '@rneui/themed';
 import {Video} from 'expo-av';
 import {useFavourite, useUser} from '../hooks/ApiHooks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 const Single = ({route}) => {
   console.log(route.params);
@@ -71,10 +72,40 @@ const Single = ({route}) => {
     }
   };
 
+  const unlock = async () => {
+    try {
+      await ScreenOrientation.unlockAsync();
+    } catch (error) {
+      console.log('unlock', error);
+    }
+  };
+
+  const lock = async () => {
+    try {
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP
+      );
+    } catch (error) {
+      console.log('lock', error);
+    }
+  };
+
   useEffect(() => {
     getOwner();
     getLikes();
+    unlock();
+    return () => {
+      lock();
+    };
   }, []);
+
+  const showVideoInFullScreen = async () => {
+    try {
+      if (video) await video.presentFullscreenPlayer();
+    } catch (error) {
+      console.log('showVideoInFullScreen', error);
+    }
+  };
 
   return (
     <ScrollView>
