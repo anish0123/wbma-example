@@ -1,15 +1,17 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {Alert, StyleSheet} from 'react-native';
 import {Controller, useForm} from 'react-hook-form';
 import {useUser} from '../hooks/ApiHooks';
 import {Button, Card, Input} from '@rneui/themed';
+import PropTypes from 'prop-types';
 
-const RegisterForm = (props) => {
+const RegisterForm = ({navigation}) => {
   const {postUser, checkUsername} = useUser();
   const {
     control,
     getValues,
     handleSubmit,
+    reset,
     formState: {errors},
   } = useForm({
     defaultValues: {
@@ -24,10 +26,10 @@ const RegisterForm = (props) => {
 
   const register = async (registerData) => {
     delete registerData.confirmPassword;
-    console.log('Registering: ', registerData);
     try {
       const registerResult = await postUser(registerData);
-      console.log('register Form', registerResult);
+      Alert.alert('User Registerd with User Id: ' + registerResult.user_id);
+      reset();
     } catch (error) {
       console.error('register', error);
       // TODO: notify user about failed login attempt
@@ -184,5 +186,9 @@ const styles = StyleSheet.create({
     padding: 0,
   },
 });
+
+RegisterForm.propTypes = {
+  navigation: PropTypes.object,
+};
 
 export default RegisterForm;

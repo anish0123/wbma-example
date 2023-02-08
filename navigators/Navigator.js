@@ -50,7 +50,6 @@ const StackScreen = () => {
             component={TabScreen}
             options={{headerShown: false}}
           />
-
           <Stack.Screen name="Single" component={Single} />
           <Stack.Screen name="MyFiles" component={MyFiles} />
           <Stack.Screen name="Modify" component={Modify} />

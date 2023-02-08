@@ -17,8 +17,8 @@ const Single = ({route}) => {
     time_added: t,
     user_id: userId,
     media_type: type,
-    screenshot,
     file_id: fileId,
+    filesize,
   } = route.params;
   const video = useRef(null);
   const [owner, setOwner] = useState({});
@@ -118,14 +118,12 @@ const Single = ({route}) => {
             ref={video}
             source={{uri: uploadsUrl + filename}}
             style={{width: '100%', height: 500}}
-            resizeMode="contain"
+            resizeMode="cover"
             useNativeControls
             onError={(error) => {
               console.log(error);
             }}
             isLooping
-            usePoster
-            posterSource={{uri: uploadsUrl + screenshot}}
           />
         )}
         <Card.Divider />
@@ -158,6 +156,10 @@ const Single = ({route}) => {
           <ListItem.Subtitle>
             User: {owner.username} ({owner.fullname})
           </ListItem.Subtitle>
+        </ListItem>
+        <ListItem>
+          <Icon name="save" />
+          <Text>{(filesize / 1000000).toFixed(2)} MB</Text>
         </ListItem>
       </Card>
     </ScrollView>
