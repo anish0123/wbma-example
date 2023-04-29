@@ -61,6 +61,13 @@ const RegisterForm = ({navigation}) => {
         }}
         render={({field: {onChange, onBlur, value}}) => (
           <Input
+            inputContainerStyle={{
+              borderWidth: 1,
+              borderColor: 'green',
+              borderRadius: 7,
+              width: '80%',
+              justifyContent: 'centre',
+            }}
             placeholder="Username"
             onBlur={onBlur}
             onChangeText={onChange}
